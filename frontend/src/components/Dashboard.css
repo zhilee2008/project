@@ -1,0 +1,24 @@
+/* Dashboard.css */
+.dashboard-title {
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    margin: 16px 0;
+}
+
+.ant-layout-sider {
+    background: #001529;
+}
+
+.ant-layout-header {
+    background: #001529;
+    color: #fff;
+}
+
+.ant-layout-content {
+    background: #fff;
+    padding: 24px;
+    margin: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
