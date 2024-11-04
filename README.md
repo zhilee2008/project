@@ -1,6 +1,6 @@
-Backend Management System
-Base on node js
-backend
+## Backend Management System
+ Base on node js
+# backend
   use npm init to setup a structure
-frontend
+# frontend
   use react creation command to setup structure
