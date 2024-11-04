@@ -159,7 +159,7 @@ const FolderDisplay = ({ apiBaseUrl }) => {
                     <Form.Item name="name" label="File Name" rules={[{ required: true, message: 'Please enter the file name!' }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="size" label="File Path" rules={[{ required: true, message: 'Please enter the file path!' }]}>
+                    <Form.Item name="size" label="Label" rules={[{ required: false, message: 'Please enter the Label!' }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item>
@@ -181,7 +181,7 @@ const FolderDisplay = ({ apiBaseUrl }) => {
                     <Form.Item name="name" label="Folder Name" rules={[{ required: true, message: 'Please enter the folder name!' }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="path" label="Folder Path" rules={[{ required: true, message: 'Please enter the folder path!' }]}>
+                    <Form.Item name="path" label="Label" rules={[{ required: false, message: 'Please enter the Label!' }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item>

@@ -122,9 +122,9 @@ router.post('/', (req, res) => {
 
             // 随机生成 3 个节点信息
             const nodes = [
-                { type: 'master', status: Math.random() > 0.5 ? 'on' : 'off' },
-                { type: 'worker', status: Math.random() > 0.5 ? 'on' : 'off' },
-                { type: 'worker', status: Math.random() > 0.5 ? 'on' : 'off' }
+                { type: 'master', status: 'on'},
+                { type: 'worker1', status: 'on' },
+                { type: 'worker2', status: 'off' }
             ];
 
             nodes.forEach(node => {
@@ -157,7 +157,7 @@ router.post('/', (req, res) => {
                         // 为每个 namespace 随机生成 workload 信息
                         const workloads = [
                             { name: `workload_${Math.floor(Math.random() * 100)}`, type: 'deployment' },
-                            { name: `workload_${Math.floor(Math.random() * 100)}`, type: 'statefulset' }
+                            { name: `workload_${Math.floor(Math.random() * 100)}`, type: 'pod' }
                         ];
 
                         workloads.forEach(workload => {

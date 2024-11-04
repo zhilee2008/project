@@ -1,121 +1,99 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Select } from 'antd';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, Tooltip } from 'chart.js';
-
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip);
-
-const { Option } = Select;
+import { Line } from '@ant-design/charts';
 
 const MetricsDisplay = () => {
-    const [metrics, setMetrics] = useState({ cpu: 0, memory: 0 });
-    const [cpuData, setCpuData] = useState([]);
-    const [memoryData, setMemoryData] = useState([]);
-    const [labels, setLabels] = useState([]);
-    const [timeRange, setTimeRange] = useState(1); // 默认显示1分钟的数据
+    const [metricsData, setMetricsData] = useState([]);
+    const [cpuUsage, setCpuUsage] = useState(0);
+    const [memoryUsage, setMemoryUsage] = useState(0);
+    function formatTime(date) {
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let seconds = date.getSeconds();
+       
+        // 将小时、分钟、秒数补齐到两位数
+        hours = hours < 10 ? '0' + hours : hours;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+       
+        return hours + ':' + minutes + ':' + seconds;
+      }
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            const timestamp = new Date().toLocaleTimeString();
-            const cpuUsage = Math.floor(Math.random() * 100);
-            const memoryUsage = Math.floor(Math.random() * 100);
+        const fetchMetrics = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/metrics');
+                const data = await response.json();
 
-            setMetrics({ cpu: cpuUsage, memory: memoryUsage });
+                const cpu = parseFloat(data.cpuUsage) || 0;
+                const memory = parseFloat(data.memoryUsage) || 0;
 
-            // 根据所选时间范围限制数据点数量
-            const maxDataPoints = timeRange * 60; // 每秒一个数据点
+                setCpuUsage(cpu);
+                setMemoryUsage(memory);
 
-            setCpuData(prevData => [...prevData.slice(-maxDataPoints + 1), cpuUsage]);
-            setMemoryData(prevData => [...prevData.slice(-maxDataPoints + 1), memoryUsage]);
-            setLabels(prevLabels => [...prevLabels.slice(-maxDataPoints + 1), timestamp]);
-        }, 1000); // 每1秒生成一个数据点
+                const currentTimestamp = Date.now(); // 使用毫秒时间戳
 
-        return () => clearInterval(interval);
-    }, [timeRange]);
+                setMetricsData((prevData) => {
+                    const newData = [
+                        ...prevData,
+                        {
+                            Time: formatTime(new Date(currentTimestamp)),
+                            timestamp: currentTimestamp, 
+                            cpuUsage: cpu,
+                            memoryUsage: memory,
+                        }
+                    ];
 
-    const data = {
-        labels: labels,
-        datasets: [
-            {
-                label: 'CPU Usage (%)',
-                data: cpuData,
-                fill: false,
-                backgroundColor: 'rgba(75,192,192,0.2)',
-                borderColor: 'rgba(75,192,192,1)',
-                pointRadius: 2,
-                pointHoverRadius: 5,
-            },
-            {
-                label: 'Memory Usage (%)',
-                data: memoryData,
-                fill: false,
-                backgroundColor: 'rgba(255,99,132,0.2)',
-                borderColor: 'rgba(255,99,132,1)',
-                pointRadius: 2,
-                pointHoverRadius: 5,
+                    // 保留最近一分钟的数据
+                    return newData.filter(item => item.timestamp >= currentTimestamp - 60000);
+                });
+            } catch (error) {
+                console.error('获取系统指标时出错:', error);
             }
-        ]
+        };
+
+        // 每隔 5 秒获取一次数据
+        const intervalId = setInterval(fetchMetrics, 5000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const lineConfigCpu = {
+        data: metricsData,
+        xField: 'Time',
+        yField: 'cpuUsage',
+        smooth: true,
+        height: 200,
+        point: { size: 2, shape: 'circle' },
+        color: '#3fa7dc',
+        label: {
+            formatter: (text) => `${parseFloat(text).toFixed(2)}%`
+        },
     };
 
-    const options = {
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: {
-            padding: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10
-            }
+    const lineConfigMem = {
+        data: metricsData,
+        xField: 'Time',
+        yField: 'memoryUsage',
+        smooth: true,
+        height: 200,
+        point: { size: 2, shape: 'circle' },
+        color: '#3fa7dc',
+        label: {
+            formatter: (text) => `${parseFloat(text).toFixed(2)}%`
         },
-        plugins: {
-            tooltip: {
-                enabled: true,
-                mode: 'nearest',
-                callbacks: {
-                    label: function (context) {
-                        return `${context.dataset.label}: ${context.raw}%`;
-                    }
-                }
-            }
-        },
-        scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: 'Time',
-                    font: { size: 12 },
-                },
-                ticks: { font: { size: 10 } }
-            },
-            y: {
-                title: {
-                    display: true,
-                    text: 'Usage (%)',
-                    font: { size: 12 },
-                },
-                min: 0,
-                max: 100,
-                ticks: { font: { size: 10 } }
-            }
-        }
     };
 
     return (
-        <Card title="Metrics Display" bordered={false} style={{ width: 800 }}>
-            <Select 
-                defaultValue={1} 
-                style={{ width: 120, marginBottom: 16 }} 
-                onChange={value => setTimeRange(value)}
-            >
-                <Option value={1}>1 Minute</Option>
-                <Option value={5}>5 Minutes</Option>
-                <Option value={10}>10 Minutes</Option>
-            </Select>
-            <div style={{ height: 400 }}>
-                <Line data={data} options={options} />
-            </div>
-        </Card>
+        <div>
+        <h2>System Metrics</h2>
+       
+        <div style={{ marginTop: 20 }}>
+            <h3>CPU Usage Over Time</h3>
+            <Line {...lineConfigCpu} />
+            <h3>Memory Usage Over Time</h3>
+            <Line {...lineConfigMem} />
+        </div>
+    </div>
+
     );
 };
 

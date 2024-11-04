@@ -4,7 +4,7 @@ import Login from './components/Login'; // 引入登录组件
 import Dashboard from './components/Dashboard';
 
 const API_BASE_URL = 'http://localhost:5000/api';
-// 模拟认证状态
+// 模拟认证
 const isAuthenticated = () => {
     return sessionStorage.getItem('isAuthenticated') === 'true'; // 简单的认证状态
 };

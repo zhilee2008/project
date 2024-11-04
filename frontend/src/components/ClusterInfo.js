@@ -108,10 +108,18 @@ const ClusterInfo = ({ onDetails }) => {
             <Modal 
                 title={currentCluster ? "Edit Cluster" : "Add Cluster"} 
                 visible={isModalVisible} 
-                onOk={handleOk} 
+                // onOk={handleOk} 
                 onCancel={() => setIsModalVisible(false)}
-                okText="Save"
-                cancelText="Cancel"
+                // okText="Save"
+                // cancelText="Cancel"
+                footer={[
+                    <Button key="cancel" onClick={() => setIsModalVisible(false)} style={{ marginLeft: '0px',marginBottom:'8px' }}>
+                        Cancel
+                    </Button>,
+                    <Button key="save" type="primary" onClick={handleOk} style={{ marginLeft: '0px' }}>
+                        Save
+                    </Button>,
+                ]}
             >
                 <Form form={form} layout="vertical">
                     {!currentCluster && (
